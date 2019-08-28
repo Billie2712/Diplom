@@ -7,27 +7,33 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="650" Width="1150" MinWidth="1150" MinHeight="600">
     <Grid>
-        <ListBox x:Name="listBox1" Margin="10,10,747,0" RenderTransformOrigin="0.5,0.5" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" VerticalAlignment="Top" MinWidth="389" MinHeight="73"/>
-        <Button Content="Начать" Margin="450,36,619,0" VerticalAlignment="Top" Click="Button_Click" MinWidth="75" MinHeight="22" Width="75" Height="20"/>
-        <Button Content="Закончить" Margin="559,36,510,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="22" MinWidth="75" MinHeight="16"/>
-        <DataGrid x:Name="datagrid1" Margin="10,112,404,87.6" SelectedCellsChanged="datagrid1_SelectedCellsChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" MinWidth="730" MinHeight="421" AutoGenerateColumns="False" ColumnWidth="*">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="№" Binding="{Binding Path=number}" Width="35*"/>
-                <DataGridTextColumn Header="Time" Binding="{Binding Path=time}" Width="80*"/>
-                <DataGridTextColumn Header="Source" Binding="{Binding Path=src}" Width="120*"/>
-                <DataGridTextColumn Header="Destination" Binding="{Binding Path=dst}" Width="120*"/>
-                <DataGridTextColumn Header="Protocol" Binding="{Binding Path=protocol}" Width="55*"/>
-                <DataGridTextColumn Header="Length" Binding="{Binding Path=length}" Width="50*"/>
-                <DataGridTextColumn Header="Info" Binding="{Binding Path=Info}" Width="250*" CanUserSort="False"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <RichTextBox x:Name="rbox1" Margin="776,115,8,227.6" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" MinWidth="360" MinHeight="279">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text=""/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="86*" />
+            <ColumnDefinition Width="394*" />
+        </Grid.ColumnDefinitions>
+        <!--Меню-->
+        <StackPanel Grid.Column="0" Margin="0,0,0,-0.4" Background="#FF1097B1" Opacity="0.9" HorizontalAlignment="Left" Width="205" Grid.ColumnSpan="2" MinWidth="205">
+            <Button Command="{Binding LoadMainUCCommand, Mode=OneTime}"
+                Margin="0,2,0,0" Height="30">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
+                        <Run Text="Начальный экран" />
+                </TextBlock>
+            </Button>
+            <Button 
+                Margin="0,2,0,0" Height="30" HorizontalContentAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
+                        <Run Text="IDS" />
+                </TextBlock>
+            </Button>
+            <Button Command="{Binding LoadSnifferUCCommand, Mode=OneTime}"
+                Margin="0,2,0,0" Height="30" HorizontalContentAlignment="Center">
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
+                        <Run Text="Анализатор сетевого трафика" />
+                </TextBlock>
+            </Button>
+        </StackPanel>
+        <!--Контент-->
+        <ContentPresenter Grid.Column="1" x:Name="OutputView" Margin="1.2,0,0,-0.4" />
 
     </Grid>
 </Window>
