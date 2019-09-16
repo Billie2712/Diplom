@@ -11,6 +11,9 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using System.Threading;
 using System.Net.NetworkInformation;
+using SharpPcap.LibPcap;
+using System.IO;
+using SharpPcap.AirPcap;
 
 namespace Sniffer.ViewModel
 {
@@ -29,6 +32,10 @@ namespace Sniffer.ViewModel
         public ICaptureDevice captureDevice;
         //счётчик пакетов
         int num;
+        // the output file
+        CaptureFileWriterDevice captureFileWriter;
+        // the input file
+        public ICaptureDevice captureFileReader;
         //строка в таблице
         private ObservableCollection<MyTable> _col = new ObservableCollection<MyTable>();
         public ObservableCollection<MyTable> Col
@@ -79,13 +86,14 @@ namespace Sniffer.ViewModel
 
             _dispatcher = Dispatcher.CurrentDispatcher;
 
-            DeviceList = new ObservableCollection<ICaptureDevice>();
+            SdeviceList = LibPcapLiveDeviceList.Instance;
+            DeviceList = new ObservableCollection<LibPcapLiveDevice>();
             DeviceListDescription = new ObservableCollection<string>();
             CurrentDevice = "";
             for (int i = 0; i < SdeviceList.Count(); i++)
             {
                 DeviceList.Add(SdeviceList[i]);
-                DeviceListDescription.Add(SdeviceList[i].Description);
+                DeviceListDescription.Add(SdeviceList[i].Interface.FriendlyName);
             }
             Col = new ObservableCollection<MyTable>();
             TcpCol = new ObservableCollection<Tcp>();
@@ -98,14 +106,14 @@ namespace Sniffer.ViewModel
 
 
         // метод для получения списка устройств
-        private ObservableCollection<ICaptureDevice> _DeviceList;
-        public ObservableCollection<ICaptureDevice> DeviceList
+        private ObservableCollection<LibPcapLiveDevice> _DeviceList;
+        public ObservableCollection<LibPcapLiveDevice> DeviceList
         {
             get { return _DeviceList; }
             set { _DeviceList = value; OnPropertyChanged("DeviceList"); }
         }
-        private CaptureDeviceList _sdeviceList = CaptureDeviceList.Instance;
-        public CaptureDeviceList SdeviceList
+        private LibPcapLiveDeviceList _sdeviceList;// = CaptureDeviceList.Instance;
+        public LibPcapLiveDeviceList SdeviceList
         {
             get { return _sdeviceList; }
             set { _sdeviceList = value; OnPropertyChanged("SdeviceList"); }
@@ -146,9 +154,14 @@ namespace Sniffer.ViewModel
             try
             {
                 for (int i = 0; i < DeviceList.Count(); i++)
-                    if (CurrentDevice == DeviceList[i].Description)
+                    if (CurrentDevice == DeviceList[i].Interface.FriendlyName)
+                    {
                         captureDevice = DeviceList[i];
-                int readTimeoutMilliseconds = 1000;
+                        if (DeviceList[i] is AirPcapDevice)
+                            _MainCodeBehind.ShowMessage("Wi-Fi");
+                    }
+                
+                int readTimeoutMilliseconds = 500;
                 // открываем в режиме promiscuous, поддерживается также нормальный режим
                 captureDevice.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
                 // регистрируем событие, которое срабатывает, когда пришел новый пакет
@@ -157,11 +170,41 @@ namespace Sniffer.ViewModel
                     num = 1;
                 // начинаем захват пакетов
                 captureDevice.StartCapture();
+
+                captureFileWriter = new CaptureFileWriterDevice(Path.GetTempPath() + "SnifferLogs.pcapng");
+
+                ReadFile();
             }
             catch
             {
                 _MainCodeBehind.ShowMessage("Интерфейс не выбран");
             }
+        }
+
+        public void ReadFile()
+        {
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    // Get an offline device
+                    captureFileReader = new CaptureFileReaderDevice(Path.GetTempPath() + "SnifferLogs2.pcapng");
+
+                    // Open the device
+                    captureFileReader.Open();
+                    captureFileReader.OnPacketArrival += new PacketArrivalEventHandler(Program_OnPacketArrivalAsync);
+                    captureFileReader.StartCapture();
+                    _MainCodeBehind.ShowMessage("Reached EOF");
+                    captureFileReader.Close();
+
+                }
+                catch (Exception e)
+                {
+                    _MainCodeBehind.ShowMessage("Caught exception when opening file" + e.ToString());
+                    return;
+                }
+                Thread.Sleep(100);
+            });
         }
 
         private RelayCommand _StopCapture;
@@ -186,7 +229,6 @@ namespace Sniffer.ViewModel
                 captureDevice.Close();
             }
             catch { _MainCodeBehind.ShowMessage("Интерфейс не выбран"); }
-
         }
 
         public struct Tcp
@@ -197,7 +239,7 @@ namespace Sniffer.ViewModel
             public uint seqNumber;       /*значения в десятеричной форме*/
             public uint ackNumber;
             public int offset;
-            public byte flags;
+            public ushort flags;
             public bool CWR;
             public bool ECE;
             public bool URG;
@@ -255,28 +297,110 @@ namespace Sniffer.ViewModel
             public string igdata;
         }
 
+
+
+
+       /* private static int packetIndex = 0;
+        private void Program_OnPacketArrivalAsync(object sender, CaptureEventArgs e)
+        {
+            if (e.Packet.LinkLayerType == PacketDotNet.LinkLayers.Ethernet)
+            {
+                var packet = PacketDotNet.Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+                var ethernetPacket = (PacketDotNet.EthernetPacket)packet;
+
+                _dispatcher.BeginInvoke(new ThreadStart(delegate
+                {
+
+                    _ShowTextBox += (packetIndex +
+                                  e.Packet.Timeval.Date.ToString() +
+                                  e.Packet.Timeval.Date.Millisecond +
+                                  ethernetPacket.SourceHardwareAddress +
+                                  ethernetPacket.DestinationHardwareAddress + "\n");
+                    packetIndex++;
+                }));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowTextBox)));
+            }
+        }*/
         void Program_OnPacketArrivalAsync(object sender, CaptureEventArgs e)
         {
+            Task.Run(() => { captureFileWriter.Write(e.Packet); });
             // парсинг всего пакета
             Packet packet = Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
             // получение только TCP пакета из всего фрейма
-            TcpPacket tcpPacket = (TcpPacket)packet.Extract(typeof(TcpPacket));
+            TcpPacket tcpPacket = (TcpPacket)packet.Extract<TcpPacket>();
             // получение только IP пакета из всего фрейма
             //IpPacket ipPacket = (IpPacket)packet.Extract(typeof(IpPacket));
             // получение только UDP пакета из всего фрейма
-            UdpPacket udpPacket = (UdpPacket)packet.Extract(typeof(UdpPacket));
-            ARPPacket arpPacket = (ARPPacket)packet.Extract(typeof(ARPPacket));
+            UdpPacket udpPacket = (UdpPacket)packet.Extract<UdpPacket>();
+            ArpPacket arpPacket = (ArpPacket)packet.Extract<ArpPacket>();
             //LinuxSLLPacket sllPacket = (LinuxSLLPacket)packet.Extract(typeof(LinuxSLLPacket));
-            ICMPv4Packet icmpPacket = (ICMPv4Packet)packet.Extract(typeof(ICMPv4Packet));
-            IGMPv2Packet igmpPacket = (IGMPv2Packet)packet.Extract(typeof(IGMPv2Packet));
+            IcmpV4Packet icmpPacket = (IcmpV4Packet)packet.Extract<IcmpV4Packet>();
+            IgmpV2Packet igmpPacket = (IgmpV2Packet)packet.Extract<IgmpV2Packet>();
 
             DateTime time = e.Packet.Timeval.Date.ToLocalTime();
             string StrTime = time.Hour + ":" + time.Minute + ":" + time.Second + ":" + time.Millisecond;
+            int len = e.Packet.Data.Length;
+
+            // Stream myStream;
+
+            // using (myStream = File.Open(Path.GetTempPath() + "SnifferLogs.pcapng", FileMode.Append, FileAccess.Write))
+            //  {
+            //StreamWriter myWriter = new StreamWriter(myStream);
+            //myWriter.WriteLine(e.Packet);
+            //var thread = new Thread(() =>
+            /*          Task.Run(() =>
+                      {
+                          //captureFileWriter = new CaptureFileWriterDevice(Path.GetTempPath() + "SnifferLogs.pcapng");
+                          captureFileWriter.Write(e.Packet);
+                          //Thread.Sleep(50);
+                      });*/
+            // }
+
+            // using (myStream = File.Open(Path.GetTempPath() + "SnifferLogs.pcapng", FileMode.OpenOrCreate, FileAccess.Read))
+            // {
+            // StreamReader myReader = new StreamReader(myStream);
+            // Console.Write(myReader.ReadToEnd());
+            //captureFileReader = new CaptureFileReaderDevice(Path.GetTempPath() + "SnifferLogs.pcapng");
+
+            //captureFileReader = new CaptureFileReaderDevice(Path.GetTempPath() + "SnifferLogs.pcapng");
+            _ShowTextBox += (num +
+                                 e.Packet.Timeval.Date.ToString() +
+                                 e.Packet.Timeval.Date.Millisecond + "\n");
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowTextBox)));
+      
+            //_ShowTextBox += myReader.ReadToEnd();
+            // }
+
+            /* using (myStream = File.Open(Path.GetTempPath() + "SnifferLogs.pcapng", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+             {
+                 StreamWriter myWriter = new StreamWriter(myStream);
+                 StreamReader myReader = new StreamReader(myStream);
+                 //_MainCodeBehind.ShowMessage(e.Packet.ToString());
+                 myWriter.WriteLine(e.Packet.ToString());
+                 _ShowTextBox += myReader.ReadLine();
+                 _MainCodeBehind.ShowMessage(myReader.ReadLine());
+                 //captureFileWriter = new CaptureFileWriterDevice(Path.GetTempPath() + "SnifferLogs.pcapng");
+                 //captureFileWriter.Write(e.Packet);
+             }*/
+
+
+            /* _dispatcher.BeginInvoke(new ThreadStart(delegate
+             {
+
+                 captureFileWriter.Write(e.Packet);
+                 File.Copy(Path.GetTempPath() + "SnifferLogs.pcapng", Path.GetTempPath() + "SnifferLogs2.pcapng");
+             }));
+             _dispatcher.BeginInvoke(new ThreadStart(delegate
+             {
+
+                 _ShowTextBox += (num +
+                               e.Packet.Timeval.Date.ToString() +
+                               e.Packet.Timeval.Date.Millisecond + "\n");
+             }));*/
 
             if (tcpPacket != null)
             {
-                int len = e.Packet.Data.Length;
-                IpPacket ipPacket = (IpPacket)tcpPacket.ParentPacket;
+                IPPacket ipPacket = (IPPacket)tcpPacket.ParentPacket;
 
                 Tcp tpck;
                 // порт отправителя
@@ -286,15 +410,15 @@ namespace Sniffer.ViewModel
                 tpck.seqNumber = tcpPacket.SequenceNumber;       /*значения в десятеричной форме*/
                 tpck.ackNumber = tcpPacket.AcknowledgmentNumber;
                 tpck.offset = tcpPacket.DataOffset;
-                tpck.flags = tcpPacket.AllFlags;
-                tpck.CWR = tcpPacket.CWR;
-                tpck.ECE = tcpPacket.ECN;
-                tpck.URG = tcpPacket.Urg;
-                tpck.ACK = tcpPacket.Ack;
-                tpck.PSH = tcpPacket.Psh;
-                tpck.RST = tcpPacket.Rst;
-                tpck.SYN = tcpPacket.Syn;
-                tpck.FIN = tcpPacket.Fin;
+                tpck.flags = tcpPacket.Flags;
+                tpck.CWR = tcpPacket.CongestionWindowReduced;
+                tpck.ECE = tcpPacket.ExplicitCongestionNotificationEcho;
+                tpck.URG = tcpPacket.Urgent;
+                tpck.ACK = tcpPacket.Acknowledgment;
+                tpck.PSH = tcpPacket.Push;
+                tpck.RST = tcpPacket.Reset;
+                tpck.SYN = tcpPacket.Synchronize;
+                tpck.FIN = tcpPacket.Finished;
                 tpck.winSize = tcpPacket.WindowSize;
                 tpck.chksum = tcpPacket.Checksum;
                 tpck.urgpoint = tcpPacket.UrgentPointer;
@@ -321,8 +445,7 @@ namespace Sniffer.ViewModel
 
             if (udpPacket != null)
             {
-                int len = e.Packet.Data.Length;
-                IpPacket ipPacket = (IpPacket)udpPacket.ParentPacket;
+                IPPacket ipPacket = (IPPacket)udpPacket.ParentPacket;
                 Udp udpk;
                 udpk.srcPort = udpPacket.SourcePort;
                 udpk.dstPort = udpPacket.DestinationPort;
@@ -352,7 +475,6 @@ namespace Sniffer.ViewModel
 
             if (arpPacket != null)
             {
-                int len = e.Packet.Data.Length;
                 Arp arpk;
                 arpk.hwtype = arpPacket.HardwareAddressType.ToString();
                 arpk.prtype = arpPacket.ProtocolAddressType.ToString();
@@ -389,8 +511,7 @@ namespace Sniffer.ViewModel
 
             if (icmpPacket != null)
             {
-                int len = e.Packet.Data.Length;
-                IpPacket ipPacket = (IpPacket)icmpPacket.ParentPacket;
+                IPPacket ipPacket = (IPPacket)icmpPacket.ParentPacket;
                 Icmp icmpk;
                 icmpk.type = icmpPacket.TypeCode.ToString();
                 icmpk.chksum = icmpPacket.Checksum;
@@ -421,8 +542,7 @@ namespace Sniffer.ViewModel
 
             if (igmpPacket != null)
             {
-                int len = e.Packet.Data.Length;
-                IpPacket ipPacket = (IpPacket)igmpPacket.ParentPacket;
+                IPPacket ipPacket = (IPPacket)igmpPacket.ParentPacket;
                 Igmp igmpk;
                 igmpk.type = igmpPacket.Type.ToString();
                 igmpk.max_resp_time = igmpPacket.MaxResponseTime.ToString();

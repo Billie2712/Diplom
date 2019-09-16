@@ -18,7 +18,7 @@ namespace Sniffer.ViewModel
 
 
         /// <summary>
-        /// Переход к первой вьюшке
+        /// Переход к вьюшке сниффера
         /// </summary>
         private RelayCommand _LoadSnifferUCCommand;
         public RelayCommand LoadSnifferUCCommand
@@ -40,25 +40,25 @@ namespace Sniffer.ViewModel
 
 
         /// <summary>
-        /// Переход ко Второй вьюшке
+        /// Переход ко вьюшке ids
         /// </summary>
-       /* private RelayCommand _LoadSecondUCCommand;
-        public RelayCommand LoadSecondUCCommand
+        private RelayCommand _LoadIdsUCCommand;
+        public RelayCommand LoadIdsUCCommand
         {
             get
             {
-                return _LoadSecondUCCommand = _LoadSecondUCCommand ??
-                  new RelayCommand(OnLoadSecondUC, CanLoadSecondUC);
+                return _LoadIdsUCCommand = _LoadIdsUCCommand ??
+                  new RelayCommand(OnLoadIdsUC, CanLoadIdsUC);
             }
         }
-        private bool CanLoadSecondUC()
+        private bool CanLoadIdsUC()
         {
             return true;
         }
-        private void OnLoadSecondUC()
+        private void OnLoadIdsUC()
         {
-            CodeBehind.LoadView(ViewType.Second);
-        }*/
+            CodeBehind.LoadView(ViewType.IDS);
+        }
 
 
         /// <summary>

@@ -6,20 +6,20 @@
         xmlns:local="clr-namespace:Sniffer"
         mc:Ignorable="d"
         Title="MainWindow" Height="650" Width="1150" MinWidth="1150" MinHeight="600">
-    <Grid>
+    <Grid MinWidth="1150" MinHeight="600">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="86*" />
-            <ColumnDefinition Width="394*" />
+            <ColumnDefinition Width="102*" MaxWidth="204" />
+            <ColumnDefinition Width="473*" />
         </Grid.ColumnDefinitions>
         <!--Меню-->
-        <StackPanel Grid.Column="0" Margin="0,0,0,-0.4" Background="#FF1097B1" Opacity="0.9" HorizontalAlignment="Left" Width="205" Grid.ColumnSpan="2" MinWidth="205">
+        <StackPanel Grid.Column="0" Margin="0,0,0,-0.4" Background="#FF1097B1" Opacity="0.9" MinWidth="205" Width="205" HorizontalAlignment="Left" Grid.ColumnSpan="2">
             <Button Command="{Binding LoadMainUCCommand, Mode=OneTime}"
                 Margin="0,2,0,0" Height="30">
                 <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
                         <Run Text="Начальный экран" />
                 </TextBlock>
             </Button>
-            <Button 
+            <Button Command="{Binding LoadIdsUCCommand, Mode=OneTime}"
                 Margin="0,2,0,0" Height="30" HorizontalContentAlignment="Center">
                 <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
                         <Run Text="IDS" />
@@ -33,7 +33,7 @@
             </Button>
         </StackPanel>
         <!--Контент-->
-        <ContentPresenter Grid.Column="1" x:Name="OutputView" Margin="1.2,0,0,-0.4" />
+        <ContentPresenter Grid.Column="1" x:Name="OutputView" Margin="1,0,0.4,-0.4" MinWidth="945" />
 
     </Grid>
 </Window>
