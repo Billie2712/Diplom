@@ -35,7 +35,7 @@ namespace Sniffer
     public enum ViewType
     {
         Main,
-        //First,
+        IDS,
         Sniffer
     }
 
@@ -73,12 +73,12 @@ namespace Sniffer
                     //отображаем
                     this.OutputView.Content = view;
                     break;
-                /*case ViewType.First:
-                    FirstUC viewF = new FirstUC();
-                    FirstViewModel vmF = new FirstViewModel(this);
-                    viewF.DataContext = vmF;
-                    this.OutputView.Content = viewF;
-                    break;*/
+                case ViewType.IDS:
+                    IdsUC viewIds = new IdsUC();
+                    IdsViewModel vmIds = new IdsViewModel(this);
+                    viewIds.DataContext = vmIds;
+                    this.OutputView.Content = viewIds;
+                    break;
                 case ViewType.Sniffer:
                     SnifferUC viewS = new SnifferUC();
                     SnifferViewModel vmS = new SnifferViewModel(this);
