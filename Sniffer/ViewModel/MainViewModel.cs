@@ -29,7 +29,7 @@ namespace Sniffer.ViewModel
         /// <summary>
         /// Сообщение пользователю
         /// </summary>
-        private RelayCommand _ShowMessageCommand;
+        /*private RelayCommand _ShowMessageCommand;
         public RelayCommand ShowMessageCommand
         {
             get
@@ -45,7 +45,7 @@ namespace Sniffer.ViewModel
         private void OnShowMessage()
         {
             _MainCodeBehind.ShowMessage("Главная страница");
-        }
+        }*/
 
     }
 }

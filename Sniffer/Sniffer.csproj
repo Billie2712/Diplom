@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -64,9 +65,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\KddFeatures.cs" />
+    <Compile Include="Model\Layers\ActivationLayer.cs" />
+    <Compile Include="Model\Layers\Layer.cs" />
+    <Compile Include="Model\Learning\DeltaRuleLearning.cs" />
+    <Compile Include="Model\Learning\ISupervisedLearning.cs" />
+    <Compile Include="Model\Networks\ActivationNetwork.cs" />
+    <Compile Include="Model\Neurons\ActivationNeuron.cs" />
+    <Compile Include="Model\Core\DoubleRange.cs" />
+    <Compile Include="Model\Activation Functions\GaussFunction.cs" />
+    <Compile Include="Model\Activation Functions\IActivationFunction.cs" />
+    <Compile Include="Model\Core\IntRange.cs" />
     <Compile Include="ViewModel\IdsViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\MenuViewModel.cs" />
+    <Compile Include="Model\Networks\NeuralNetwork.cs" />
+    <Compile Include="Model\Neurons\Neuron.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\SnifferViewModel.cs" />
     <Compile Include="View\IdsUC.xaml.cs">
@@ -118,7 +132,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
@@ -130,6 +144,29 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\wave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dashboard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\report.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\faq.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\security-shield.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

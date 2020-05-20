@@ -3,33 +3,85 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Sniffer"
         mc:Ignorable="d"
         Title="MainWindow" Height="650" Width="1150" MinWidth="1150" MinHeight="600">
+    <Window.Resources>
+        <Style x:Key="FocusStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#00DDDDDD"/>
+            <Setter Property="Height" Value="32"/>
+                <Setter Property="Margin" Value="-1,0,0,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" BorderBrush="#FFCBE8BA" BorderThickness="0.5">
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#AEDD94"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Background="Transparent" >
+                                <ContentPresenter></ContentPresenter>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+                </Setter>
+
+            </Style>
+    </Window.Resources>
     <Grid MinWidth="1150" MinHeight="600">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="102*" MaxWidth="204" />
             <ColumnDefinition Width="473*" />
         </Grid.ColumnDefinitions>
         <!--Меню-->
-        <StackPanel Grid.Column="0" Margin="0,0,0,-0.4" Background="#FF1097B1" Opacity="0.9" MinWidth="205" Width="205" HorizontalAlignment="Left" Grid.ColumnSpan="2">
-            <Button Command="{Binding LoadMainUCCommand, Mode=OneTime}"
-                Margin="0,2,0,0" Height="30">
-                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
-                        <Run Text="Начальный экран" />
-                </TextBlock>
+        <StackPanel Grid.Column="0" Margin="0,0,0,-0.4" Background="#629C44" Opacity="0.9" MinWidth="205" Width="205" HorizontalAlignment="Left" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" Background="#99004E63" MinWidth="35">
+                <Button Margin="0" IsCancel="True" MinWidth="35" BorderBrush="#00000000" >
+                    <Button.Background>
+                        <ImageBrush ImageSource="Resources/transparent.png" Stretch="Uniform"/>
+                    </Button.Background>
+                    <Image Source="Resources/menu.png" Margin="3,0,0,0" Height="26" Width="197" HorizontalAlignment="Left"  />
+                </Button>
+            </StackPanel>
+            <Button Style="{StaticResource FocusStyle}" Command="{Binding LoadMainUCCommand, Mode=OneTime}"
+                >
+                <StackPanel Orientation="Horizontal" Width="195">
+                    <Image Source="Resources/home.png" Margin="0" Height="25" Width="25" />
+                    <TextBlock FontFamily="Georgia" FontSize="14" Foreground="#FFF7F6F6" Width="171" VerticalAlignment="Center" TextAlignment="Center"><Run Text="ГЛАВНАЯ СТРАНИЦА" /></TextBlock>
+                </StackPanel>
             </Button>
-            <Button Command="{Binding LoadIdsUCCommand, Mode=OneTime}"
-                Margin="0,2,0,0" Height="30" HorizontalContentAlignment="Center">
-                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
-                        <Run Text="IDS" />
-                </TextBlock>
+            <Button Style="{StaticResource FocusStyle}" Command="{Binding LoadSnifferUCCommand, Mode=OneTime}"
+                >
+                <StackPanel Orientation="Horizontal" Width="195">
+                    <Image Source="Resources/wave.png" Margin="0" Height="25" Width="25" />
+                    <TextBlock FontFamily="Georgia" FontSize="13" Foreground="#FFF7F6F6" Width="171" HorizontalAlignment="Center" TextAlignment="Center"> <Run Text="АНАЛИЗАТОР"/><LineBreak/><Run Text="СЕТЕВОГО ТРАФИКА"/></TextBlock>
+                </StackPanel>
             </Button>
-            <Button Command="{Binding LoadSnifferUCCommand, Mode=OneTime}"
-                Margin="0,2,0,0" Height="30" HorizontalContentAlignment="Center">
-                <TextBlock FontFamily="Segoe UI Symbol" FontSize="14">
-                        <Run Text="Анализатор сетевого трафика" />
-                </TextBlock>
+            <Button Style="{StaticResource FocusStyle}" Command="{Binding LoadIdsUCCommand, Mode=OneTime}"
+                >
+                <StackPanel Orientation="Horizontal" Width="195">
+                    <Image Source="Resources/dashboard.png" Margin="-1,0,0,0" Height="27" Width="27" />
+                    <TextBlock FontFamily="Georgia" FontSize="14" Foreground="#FFF7F6F6" Width="171" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"><Run Text="ДАШБОРД"/></TextBlock>
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource FocusStyle}"
+                >
+                <StackPanel Orientation="Horizontal" Width="195">
+                    <Image Source="Resources/report.png" Margin="3,0,0,0" Height="25" Width="25" />
+                    <TextBlock FontFamily="Georgia" FontSize="14" Foreground="#FFF7F6F6" Width="171" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"><Run Text="ОТЧЕТЫ"/></TextBlock>
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource FocusStyle}"
+                >
+                <StackPanel Orientation="Horizontal" Width="195">
+                    <Image Source="Resources/faq.png" Margin="2,0,0,0" Height="25" Width="25" />
+                    <TextBlock FontFamily="Georgia" FontSize="14" Foreground="#FFF7F6F6" Width="171" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"><Run Text="СПРАВКА"/></TextBlock>
+                </StackPanel>
             </Button>
         </StackPanel>
         <!--Контент-->

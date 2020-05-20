@@ -8,10 +8,17 @@
              d:DesignHeight="650" d:DesignWidth="958"
              d:DataContext="{d:DesignInstance local:SnifferViewModel, IsDesignTimeCreatable=True}">
 
-    <Grid>
-        <ComboBox Margin="0,0,260.4,0" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" IsReadOnly="True" ItemsSource="{Binding DeviceListDescription}" SelectedItem="{Binding CurrentDevice}" MinWidth="692" HorizontalContentAlignment="Stretch" Height="26" />
-        <Button Content="Начать" HorizontalAlignment="Right" Margin="0,0,130.4,0" Width="130" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" MinWidth="130" MinHeight="26" Height="26" VerticalAlignment="Top" Command="{Binding StartCapture}"/>
-        <Button Content="Закончить" HorizontalContentAlignment="Center" Margin="0,0,0.4,0" Width="130" MinWidth="130" MinHeight="26" Height="26" VerticalAlignment="Top" Command="{Binding StopCapture}" HorizontalAlignment="Right"/>
+    <Grid HorizontalAlignment="Center">
+        <Grid MinWidth="958" MinHeight="26" MaxHeight="26" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4.5*" />
+                <ColumnDefinition Width="1*"  />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" Margin="0" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" IsReadOnly="True" ItemsSource="{Binding DeviceListDescription}" SelectedItem="{Binding CurrentDevice}" HorizontalContentAlignment="Stretch" MinHeight="26" />
+            <Button Grid.Column="1" Content="Начать" Margin="0.2,0,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" MinWidth="133" MinHeight="26" VerticalAlignment="Top" Command="{Binding StartCapture}"/>
+            <Button Grid.Column="2" Content="Закончить" HorizontalContentAlignment="Center" Margin="0.2,0" MinWidth="133" MinHeight="26" VerticalAlignment="Top" Command="{Binding StopCapture}"/>
+        </Grid>
         <DataGrid Margin="0,27,0,131.6" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" AutoGenerateColumns="False" ItemsSource="{Binding Col}" HorizontalGridLinesBrush="#FF353535" VerticalGridLinesBrush="#FF353535" IsReadOnly="True" SelectedItem="{Binding SelectedPacket, Mode=TwoWay}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="№" Binding="{Binding Path=Number}" Width="35*"/>

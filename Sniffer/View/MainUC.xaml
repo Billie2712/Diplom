@@ -3,14 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Sniffer.View"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Добро пожаловать!" FontSize="18" />
-            <Button Content="Click Me" Command="{Binding ShowMessageCommand, Mode=OneTime}"
-                Width="70" Height="20" Margin="0,20,0,0"/>
+             d:DesignHeight="650" d:DesignWidth="945">
+    <Grid HorizontalAlignment="Center">
+        <StackPanel Orientation="Vertical" Height="643" VerticalAlignment="Top">
+            <Image Source="/Resources/security-shield.png" Margin="368,10,366.8,0" VerticalAlignment="Top" MinWidth="200" MinHeight="240" MaxWidth="270" MaxHeight="310"/>
+            <Label Content="Надежная защита от сетевых угроз" HorizontalAlignment="Center" Margin="182,8,183.8,0" FontFamily="Georgia" FontSize="30" FontWeight="Bold" Foreground="#FF232323" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+            <TextBlock Margin="10,13,9.8,0" TextWrapping="Wrap" FontFamily="Arial" FontSize="18" MinWidth="920" MinHeight="155" VerticalAlignment="Top" UseLayoutRounding="True" LineHeight="6"><Run Text="Metum IDS – это система обнаружения сетевых атак, предназначенная для защиты Ваших рабочего места и сети от внешних и внутренних угроз. Задачами системы являются:"/><LineBreak/><Run/><LineBreak/><Run Text="&#x9;✔ оповещение о сетевых угрозах в режиме реального времени"/><LineBreak/><Run Text="&#x9;✔ составление отчетов об инцидентах ИБ"/><LineBreak/><Run Text="&#x9;✔ динамический мониторинг состояния защищенности сети"/><LineBreak/><Run Text="&#x9;✔ составление статистики для проведения анализа"/></TextBlock>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="0,0,10,0" Height="65">
+            <TextBlock TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" Foreground="#FF929292" Text="Приложение разработал студент 5 курса&#xA;кафедры &quot;Интеллектуальные системы ИБ&quot;&#xA;МИРЭА – Российского технологического университета&#xA;Липатов С.В." FontFamily="Arial" Margin="0,0,9,10" VerticalAlignment="Bottom"/>
         </StackPanel>
     </Grid>
 </UserControl>
